@@ -44,9 +44,9 @@ func NewAwscdkStack(scope constructs.Construct, id string, props *AwscdkStackPro
 			AllowMethods: jsii.Strings("GET", "POST", "DELETE", "PUT", "OPTIONS"),
 			AllowOrigins: jsii.Strings("*"),
 		},
-		DeployOptions: &awsapigateway.StageOptions{
-			LoggingLevel: awsapigateway.MethodLoggingLevel_INFO,
-		},
+		// DeployOptions: &awsapigateway.StageOptions{
+		// 	LoggingLevel: awsapigateway.MethodLoggingLevel_INFO,
+		// },
 	})
 
 	intergration := awsapigateway.NewLambdaIntegration(myfunction, nil)
@@ -58,6 +58,10 @@ func NewAwscdkStack(scope constructs.Construct, id string, props *AwscdkStackPro
 	// Define the routes
 	loginResource := api.Root().AddResource(jsii.String("login"), nil)
 	loginResource.AddMethod(jsii.String("POST"), intergration, nil)
+
+	// Define the routes
+	protectedResource := api.Root().AddResource(jsii.String("protected"), nil)
+	protectedResource.AddMethod(jsii.String("GET"), intergration, nil)
 
 	return stack
 }

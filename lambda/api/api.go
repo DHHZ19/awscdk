@@ -102,15 +102,18 @@ func (api ApiHandler) LoginUser(request events.APIGatewayProxyRequest) (events.A
 		}, nil
 	}
 
-	if !types.ValidatePassword(user.PasswrodHash, loginRequest.Password) {
+	if !types.ValidatePassword(user.PasswordHash, loginRequest.Password) {
 		return events.APIGatewayProxyResponse{
 			Body:       "invalid user credentials",
 			StatusCode: http.StatusBadRequest,
 		}, nil
 	}
 
+	accessToken := types.CreateToken(user)
+	successMS := fmt.Sprintf(`{"access_token": "%s"}`, accessToken)
+
 	return events.APIGatewayProxyResponse{
-		Body:       "Sucessfuly logged in",
+		Body:       successMS,
 		StatusCode: http.StatusOK,
 	}, nil
 }
