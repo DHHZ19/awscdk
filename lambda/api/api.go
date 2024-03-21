@@ -54,8 +54,16 @@ func (api ApiHandler) RegisterUserHandler(request events.APIGatewayProxyRequest)
 		}, err
 	}
 
+	user, err := types.NewUser(registerUser)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			Body:       "internal server error",
+			StatusCode: http.StatusInternalServerError,
+		}, fmt.Errorf("errror instering user - %w", err)
+	}
+
 	// we know that a user does not exist
-	err = api.dbStore.InsertUser(registerUser)
+	err = api.dbStore.InsertUser(user)
 	if err != nil {
 		return events.APIGatewayProxyResponse{
 			Body:       "internal server error",
@@ -65,6 +73,44 @@ func (api ApiHandler) RegisterUserHandler(request events.APIGatewayProxyRequest)
 
 	return events.APIGatewayProxyResponse{
 		Body:       "succesfuly regsitered user",
+		StatusCode: http.StatusOK,
+	}, nil
+}
+
+func (api ApiHandler) LoginUser(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	type LoginRequest struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+
+	var loginRequest LoginRequest
+
+	err := json.Unmarshal([]byte(request.Body), &loginRequest)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			Body:       "Invalid Request",
+			StatusCode: http.StatusBadRequest,
+		}, err
+	}
+
+	user, err := api.dbStore.GetUser(loginRequest.Username)
+
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			Body:       "Internal server error",
+			StatusCode: http.StatusInternalServerError,
+		}, nil
+	}
+
+	if !types.ValidatePassword(user.PasswrodHash, loginRequest.Password) {
+		return events.APIGatewayProxyResponse{
+			Body:       "invalid user credentials",
+			StatusCode: http.StatusBadRequest,
+		}, nil
+	}
+
+	return events.APIGatewayProxyResponse{
+		Body:       "Sucessfuly logged in",
 		StatusCode: http.StatusOK,
 	}, nil
 }
