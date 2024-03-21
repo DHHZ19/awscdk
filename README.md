@@ -1,6 +1,10 @@
-# Welcome to your CDK Go project!
+# CDK Go project!
 
-This is a blank project for CDK development with Go.
+In this project I setup a go backend that uses aws cdk, api getway and DynamoDB to setup a login with increpation utlizing bcyrpt. 
+
+
+
+
 
 The `cdk.json` file tells the CDK toolkit how to execute your app.
 
