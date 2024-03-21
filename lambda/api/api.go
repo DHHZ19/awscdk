@@ -1,41 +1,70 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"lambda-function/database"
 	"lambda-function/types"
+	"net/http"
+
+	"github.com/aws/aws-lambda-go/events"
 )
 
 type ApiHandler struct {
-	dbStore database.DynamoDBClient
+	dbStore database.UserStore
 }
 
-func NewApiHandler(dbStore database.DynamoDBClient) ApiHandler {
+func NewApiHandler(dbStore database.UserStore) ApiHandler {
 	return ApiHandler{
 		dbStore: dbStore,
 	}
 }
 
-func (api ApiHandler) RegisterUserHandler(event types.RegisterUser) error {
-	if event.Username == "" || event.Passsword == "" {
-		return fmt.Errorf("request has empty parameters")
+func (api ApiHandler) RegisterUserHandler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	var registerUser types.RegisterUser
+
+	err := json.Unmarshal([]byte(request.Body), &registerUser)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			Body:       "Invalid Request",
+			StatusCode: http.StatusBadRequest,
+		}, err
+	}
+
+	if registerUser.Username == "" || registerUser.Passsword == "" {
+		return events.APIGatewayProxyResponse{
+			Body:       "Invalid request - fields empty",
+			StatusCode: http.StatusBadRequest,
+		}, err
 	}
 
 	// does a user with this username already exists?
-	userExists, err := api.dbStore.DoesUserExist(event.Username)
+	userExists, err := api.dbStore.DoesUserExist(registerUser.Username)
 	if err != nil {
-		return fmt.Errorf("there an error checking if user exists %w", err)
+		return events.APIGatewayProxyResponse{
+			Body:       "internal server errror",
+			StatusCode: http.StatusInternalServerError,
+		}, err
 	}
 
 	if userExists {
-		return fmt.Errorf("a user wit that username already exissts")
+		return events.APIGatewayProxyResponse{
+			Body:       "User already existsty",
+			StatusCode: http.StatusConflict,
+		}, err
 	}
 
 	// we know that a user does not exist
-	err = api.dbStore.InsertUser(event)
+	err = api.dbStore.InsertUser(registerUser)
 	if err != nil {
-		return fmt.Errorf("error regsitering the user %w", err)
+		return events.APIGatewayProxyResponse{
+			Body:       "internal server error",
+			StatusCode: http.StatusInternalServerError,
+		}, fmt.Errorf("errror instering user - %w", err)
 	}
 
-	return nil
+	return events.APIGatewayProxyResponse{
+		Body:       "succesfuly regsitered user",
+		StatusCode: http.StatusOK,
+	}, nil
 }
