@@ -2,19 +2,9 @@
 
 In this project I setup a go backend that to register users add them to the database with increpation utilizing bcyrpt. 
 
-**Link to project:** 
-
-![alt tag]()
-
 ## How It's Made:
 
 **Tech used:**  Golang, AWS cdk, lambda, api gatway and DynamoDB as the database. 
-
-
-## Optimizations
-*(optional)*
-
-I would setup a frontend to utlize this backend for a login credendtials. 
 
 ## Lessons Learned:
 
