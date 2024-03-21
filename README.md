@@ -1,6 +1,6 @@
 # CDK Go project!
 
-In this project I setup a go backend that uses aws cdk, api getway and DynamoDB to setup a login with increpation utlizing bcyrpt. 
+In this project I setup a go backend that uses aws cdk, lambda, api gatway and DynamoDB as the database to register users add them to the database with increpation utilizing bcyrpt. 
 
 
 
