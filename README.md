@@ -1,6 +1,6 @@
 # CDK, Go Backend for Registering Users, handles logins, and returns a Bearer token for protected routes.
 
-In this project I setup a go backend to register users add them to the database with encryption utilizing bcyrpt. 
+In this project I setup a go backend to register users add them to the database with encryption utilizing bcrypt. 
 
 ## How It's Made:
 
